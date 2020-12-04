@@ -1,0 +1,78 @@
+---
+- name: 'create polarproxy user'
+  become: yes
+  user:
+    name: polarproxy
+    system: yes
+
+- name: 'create polarproxy dirs'
+  become: yes
+  file:
+    path: '{{ item }}'
+    owner: polarproxy
+    group: root
+    mode: 0775
+    state: directory
+  loop:
+    - /var/log/PolarProxy
+    - /opt/PolarProxy
+
+- name: 'download polarproxy'
+  become: yes
+  unarchive:
+    remote_src: yes
+    src: 'https://www.netresec.com/?download=PolarProxy'
+    dest: '/opt/PolarProxy'
+    owner: polarproxy
+    group: root
+
+- name: 'add service configuration'
+  become: yes
+  copy:
+    src: 'PolarProxy.service'
+    dest: '/etc/systemd/system/'
+
+- name: 'enable and start polarproxy service'
+  become: yes
+  systemd:
+    name: PolarProxy
+    enabled: yes
+    state: started
+
+- name: 'copy cer to shared folder'
+  copy:
+    remote_src: yes
+    src: /var/log/PolarProxy/polarproxy.cer
+    dest: /vagrant/
+
+- name: 'redirect 443 traffic to polarproxy'
+  become: yes
+  iptables:
+    table: nat
+    chain: PREROUTING
+    in_interface: eth1
+    protocol: tcp
+    jump: REDIRECT
+    destination_port: '443'
+    to_ports: '10443'
+
+# This redirects ALL HTTPS traffic to tor, including the router traffic
+# couldn't find a better solution that would work with tor + polarproxy
+- name: 'redirect https traffic to tor'
+  become: yes
+  iptables:
+    table: nat
+    chain: OUTPUT
+    protocol: tcp
+    jump: DNAT
+    destination_port: '443'
+    to_destination: '192.168.1.1:9040'
+
+# Polarproy rotates the pcaps every hour, there's no way to change that,
+# to force the rotation we just restart the daemon
+- name: 'restart polar proxy every minute'
+  become: yes
+  cron:
+    name: 'restart PolarProxy'
+    minute: '*'
+    job: 'systemctl restart PolarProxy'

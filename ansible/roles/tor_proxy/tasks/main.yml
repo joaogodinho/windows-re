@@ -1,0 +1,60 @@
+---
+- name: 'create torrc dir'
+  file: path={{ ansible_env.HOME }}/torrc state=directory
+
+- name: 'copy configuration file'
+  copy:
+    src: torrc
+    dest: "{{ ansible_env.HOME }}/torrc/torrc"
+
+# Fix issues with docker groups
+- name: reset ssh connection
+  meta: reset_connection
+
+- name: 'start tor proxy container'
+  community.general.docker_container:
+    name: tor_proxy
+    image: dperson/torproxy:latest
+    network_mode: 'host'
+    volumes:
+      - "{{ ansible_env.HOME }}/torrc/torrc:/etc/tor/torrc:ro"
+
+# TODO Iptables stuff, probably move this somewhere else
+- name: 'set drop policy for FORWARD'
+  iptables:
+    table: filter
+    chain: FORWARD
+    policy: DROP
+  become: yes
+
+- name: 'redirect tcp to tor container'
+  iptables:
+    table: nat
+    chain: PREROUTING
+    in_interface: eth1
+    protocol: tcp
+    jump: REDIRECT
+    to_ports: '9040'
+  become: yes
+
+
+- name: 'redirect dns to tor container'
+  iptables:
+    table: nat
+    chain: PREROUTING
+    in_interface: eth1
+    protocol: udp
+    jump: DNAT
+    destination_port: '53'
+    to_destination: '192.168.1.1:5353'
+  become: yes
+
+- name: 'redirect pings to router'
+  iptables:
+    table: nat
+    chain: PREROUTING
+    in_interface: eth1
+    protocol: icmp
+    jump: DNAT
+    to_destination: '192.168.1.1'
+  become: yes

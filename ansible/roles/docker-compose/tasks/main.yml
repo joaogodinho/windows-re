@@ -1,0 +1,16 @@
+---
+- name: 'install docker-compose'
+  get_url:
+    url: '{{ docker_compose_url }}'
+    dest: '{{ docker_compose_path }}'
+  become: yes
+
+- name: 'set correct permissions'
+  file:
+    path: '{{ docker_compose_path }}'
+    mode: '+x'
+  become: yes
+
+- name: 'install docker-compose for python'
+  pip:
+    name: 'docker-compose'

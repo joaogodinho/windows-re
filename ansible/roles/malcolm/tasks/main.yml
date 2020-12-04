@@ -1,0 +1,22 @@
+---
+- name: 'copy malcolm files to homedir'
+  copy:
+    src: malcolm
+    dest: "{{ ansible_env.HOME}}/"
+
+- name: 'add write permissions to pcap folder'
+  file:
+    path: '{{ ansible_env.HOME}}/malcolm/pcap/upload'
+    mode: 0777
+
+# Might not need this
+# - name: 'remove running containers'
+#   community.general.docker_compose:
+#     project_src: "{{ ansible_env.HOME}}/malcolm"
+#     state: absent
+
+- name: 'launch malcolm'
+  community.general.docker_compose:
+    project_src: "{{ ansible_env.HOME}}/malcolm"
+    state: present
+    pull: yes

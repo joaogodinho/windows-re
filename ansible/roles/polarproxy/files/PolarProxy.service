@@ -1,0 +1,15 @@
+[Unit]
+Description=PolarProxy TLS pcap logger
+After=network.target
+
+[Service]
+SyslogIdentifier=PolarProxy
+Type=simple
+User=polarproxy
+WorkingDirectory=/opt/PolarProxy
+ExecStart=/opt/PolarProxy/PolarProxy -v -p 192.168.1.1,10443,80,443 -x /var/log/PolarProxy/polarproxy.cer -f /var/log/PolarProxy/proxyflows.log -o /home/vagrant/malcolm/pcap/upload/ --insecure
+KillSignal=SIGINT
+FinalKillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,6 @@
+{
+    "icc": false,
+    "max-concurrent-downloads": 10,
+    "max-concurrent-uploads": 10,
+    "userland-proxy": false
+}
