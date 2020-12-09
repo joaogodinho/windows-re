@@ -9,10 +9,10 @@
 - hosts: router
   any_errors_fatal: true
   roles:
-    # - 'docker'
-    # - 'docker-compose'
+    - 'docker'
+    - 'docker-compose'
     - 'polarproxy'
     - 'tor_proxy'
-    # - 'malcolm'
+    - 'malcolm'
 
 
