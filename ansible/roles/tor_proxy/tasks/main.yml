@@ -59,14 +59,3 @@
     to_destination: '192.168.1.1'
   become: yes
 
-# TODO move this to its own role, together with all IPtables stuff
-- name: 'save iptables status'
-  become: yes
-  shell: 'iptables-save > /etc/iptables.rules'
-
-- name: 'load iptables at reboot'
-  become: yes
-  cron:
-    name: 'load iptables'
-    reboot: yes
-    job: '/usr/sbin/iptables-restore < /etc/iptables.rules'

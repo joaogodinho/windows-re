@@ -11,8 +11,9 @@
   roles:
     - 'docker'
     - 'docker-compose'
-    - 'polarproxy'
     - 'tor_proxy'
     - 'malcolm'
+    # Keeping this last due to the iptables rules
+    - 'polarproxy'
 
 

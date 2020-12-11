@@ -39,6 +39,10 @@
     enabled: yes
     state: started
 
+- name: 'wait for polarproxy to generate cert'
+  wait_for:
+    path: /var/log/PolarProxy/polarproxy.cer
+
 - name: 'copy cer to shared folder'
   copy:
     remote_src: yes
@@ -50,23 +54,35 @@
   iptables:
     table: nat
     chain: PREROUTING
+    action: insert
     in_interface: eth1
     protocol: tcp
     jump: REDIRECT
     destination_port: '443'
     to_ports: '10443'
 
-# This redirects ALL HTTPS traffic to tor, including the router traffic
-# couldn't find a better solution that would work with tor + polarproxy
 - name: 'redirect https traffic to tor'
   become: yes
   iptables:
     table: nat
     chain: OUTPUT
     protocol: tcp
+    uid_owner: polarproxy
     jump: DNAT
     destination_port: '443'
     to_destination: '192.168.1.1:9040'
+
+# TODO move this to its own role, together with all IPtables stuff
+- name: 'save iptables status'
+  become: yes
+  shell: 'iptables-save > /etc/iptables.rules'
+
+- name: 'load iptables at reboot'
+  become: yes
+  cron:
+    name: 'load iptables'
+    reboot: yes
+    job: '/usr/sbin/iptables-restore < /etc/iptables.rules'
 
 # Polarproy rotates the pcaps every hour, there's no way to change that,
 # to force the rotation we just restart the daemon
@@ -74,5 +90,5 @@
   become: yes
   cron:
     name: 'restart PolarProxy'
-    minute: '*'
+    minute: '*/2'
     job: 'systemctl restart PolarProxy'
