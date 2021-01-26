@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
       vb.customize ['modifyvm', :id, '--clipboard', 'bidirectional']
     end
     subconfig.vm.network "private_network", ip: "192.168.1.1", virtualbox__intnet: "rev_net"
-    subconfig.vm.network "forwarded_port", guest: 443, host: 8443
+    subconfig.vm.network "forwarded_port", guest: 443, host: 8443, host_ip: "127.0.0.1"
 
 		subconfig.vm.provision "ansible" do |ansible|
     	ansible.playbook = "ansible/playbooks/router.yml"
