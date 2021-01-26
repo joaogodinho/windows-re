@@ -26,11 +26,11 @@ Regular internet access is not longer needed for the Windows VM, and now we'll c
         - Subnet mask: 255.255.255.0
         - Default gateway: 192.168.1.1
         - Default DNS: 8.8.8.8
-2. Shutdown the machine and take a snapshot (this snapshot should be the one to rollback after doing some analysis)
-3. In VirtualBox Network settings for the Windows VM, disable Adapter 1
-4. In the `shared_folders/ubuntu` directory a certificate was placed from PolarProxy, copy to `shared_folders/windows` and install the certificate as a root CA
+2. In the `shared_folders/ubuntu` directory a certificate was placed from PolarProxy, copy to `shared_folders/windows` and install the certificate as a root CA
+3. Shutdown the machine and take a snapshot (this snapshot should be the one to rollback after doing some analysis)
+4. In VirtualBox Network settings for the Windows VM, disable Adapter 1
 
-__Note that if you manually shutdown the windows VM and run `vagrant up` again, it will re-enable the Adapter 1 Network, which is why we also disable it in Windows itself__
+__Note that if you manually shutdown the windows VM and run `vagrant up` again, it will re-enable the Adapter 1 Network, which is why we also disable it in Windows itself. Disable it again in VirtualBox's Network settings__
 
 # Malcolm
 
