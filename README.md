@@ -26,8 +26,14 @@ Regular internet access is not longer needed for the Windows VM, and now we'll c
 
 __Note that if you manually shutdown the windows VM and run `vagrant up` again, it will re-enable the Adapter 1 Network, which is why we also disable it in Windows itself__
 
+# Malcolm
+
+To access malcolm, head to `https://localhost:8443`, the default credentials are `root:root`. The Kibana interface is available in `/kibana`.
+
+If using Chrome and need to bypass the invalid certificate, type just type `thisisunsafe`.
+
 # Tips
 - Disable effects on windows: Run `sysdm.cpl`, **Advanced -> Performance Settings -> Adjust for best performance**
-- Install Flare-VM \[[1]\] (ideally before cutting internet access)
+- Install Flare-VM \[1\] (ideally before cutting internet access)
 
-[1]: https://github.com/fireeye/flare-vm#installation-install-script
+\[1\]: https://github.com/fireeye/flare-vm#installation-install-script
