@@ -1,19 +1,49 @@
 ---
-- name: 'copy malcolm files to homedir'
-  copy:
-    src: malcolm
-    dest: "{{ ansible_env.HOME}}/"
+- name: 'clone malcolm to homedir'
+  git:
+    repo: 'https://github.com/cisagov/Malcolm.git'
+    dest: '{{ ansible_env.HOME }}/malcolm'
+    version: 'v2.6.0'
+    update: 'no'
+
+- name: 'run malcolm auth_setup'
+  expect:
+    command: '/usr/bin/python3 /home/vagrant/malcolm/scripts/auth_setup'
+    echo: yes
+    timeout: 120
+    responses:
+      (.+)username\:(.+): "{{ malcolm.user }}"
+      (.+)password\:(.+): "{{ malcolm.password }}"
+      (.+)password \(again\)\:(.+): "{{ malcolm.password }}"
+      (.+)HTTPS access \(Y/n\)\:(.+): "y"
+      (.+)log forwarder \(Y/n\)\:(.+): "n"
+      (.+)Elasticsearch instance \(y/N\)\:(.+): "n"
+
+- name: 'run malcolm configure'
+  expect:
+    command: '/usr/bin/python3 /home/vagrant/malcolm/scripts/install.py --configure'
+    responses:
+      (.+)Is this OK\? \(Y/n\): "y"
+      (.+)Docker daemon restart\? \(y/N\): "n"
+      (.+)server\? \(y/N\): "n"
+      (.+)indices\? \(y/N\): "n"
+      (.+)size\? \(y/N\): "n"
+      (.+)PCAP files with Zeek\? \(Y/n\): "y"
+      (.+)logs\? \(y/N\): "n"
+      (.+)addresses\? \(Y/n\): "n"
+      (.+)fields\? \(Y/n\): "y"
+      (.+)hosts\? \(y/N\): "n"
+      (.+)instance\? \(y/N\): "n"
+      (.+)file extraction with Zeek\? \(y/N\): "n"
+      (.+)files\? \(y/N\): "y"
+      (.+)\(comma-separated\): "eth1"
+      (.+)netsniff-ng\? \(Y/n\): "y"
+      (.+)tcpdump\? \(y/N\): "n"
 
 - name: 'add write permissions to pcap folder'
   file:
     path: '{{ ansible_env.HOME}}/malcolm/pcap/upload'
     mode: 0777
-
-# Might not need this
-# - name: 'remove running containers'
-#   community.general.docker_compose:
-#     project_src: "{{ ansible_env.HOME}}/malcolm"
-#     state: absent
 
 - name: 'launch malcolm'
   community.general.docker_compose:
