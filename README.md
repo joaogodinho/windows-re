@@ -1,5 +1,11 @@
 # Windows RE
-How to setup a Windows environment for reverse engineering.
+The purpose of this project is to facilitate the deployment of infrastructure to do reversing and analysis of malware.
+
+We use Vagrant and Ansible to launch a Windows 10 and an Ubuntu 20.04 machine.
+
+The Ubuntu (named `router`) serves as a router for the Windows machine.
+It dumps all traffic and strips TLS before forwarding it through Tor.
+To facilitate traffic analysis, Malcolm \[1\] is deployed on the `router` machine.
 
 # Requirements
 - Vagrant
@@ -28,12 +34,17 @@ __Note that if you manually shutdown the windows VM and run `vagrant up` again, 
 
 # Malcolm
 
-To access malcolm, head to `https://localhost:8443`, the default credentials are `root:root`. The Kibana interface is available in `/kibana`.
+To access malcolm, head to `https://localhost:8443`, the default credentials are `root:root`. The Kibana interface is available at `/kibana`.
 
-If using Chrome and need to bypass the invalid certificate, type just type `thisisunsafe`.
 
 # Tips
 - Disable effects on windows: Run `sysdm.cpl`, **Advanced -> Performance Settings -> Adjust for best performance**
-- Install Flare-VM \[1\] (ideally before cutting internet access)
+- Install Flare-VM \[2\] (ideally before cutting internet access)
+- If using Chrome and need to bypass the invalid certificate, type just type `thisisunsafe`
+- To SSH into the `router` VM, run `vagrant ssh router`
+- To wipe malcolm data, go to `/home/vagrant/malcolm/` and run `python3 scripts/control.py --wipe`, after the wipe, run `docker-compose up -d` again to restart everything
 
-\[1\]: https://github.com/fireeye/flare-vm#installation-install-script
+# References
+
+\[1\]: https://github.com/cisagov/Malcolm
+\[2\]: https://github.com/fireeye/flare-vm#installation-install-script
